@@ -3,6 +3,8 @@ from torch import nn
 import torch.nn.functional as F
 from nanovllm.utils.context import get_context
 
+torch._dynamo.config.capture_scalar_outputs = True
+
 
 def store_kvcache(
     key: torch.Tensor,
@@ -79,6 +81,7 @@ class Attention(nn.Module):
         self.k_cache = torch.tensor([])
         self.v_cache = torch.tensor([])
 
+    @torch.compile
     def forward(self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor):
         context = get_context()
         # NOTE: We pass 'context' directly as an argument
